@@ -6,11 +6,14 @@ Run `mvn clean install` from the project path where pom.xml is present.
 
 ## Add As Dependency 
 Add the following code snippet to your application's pom.xml.
-	<dependency>
+
+```python
+<dependency>
 		<groupId>com.ltts</groupId>
 		<artifactId>message-broker-client</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-	</dependency>
+</dependency>
+```
 
 ## Authors
 * **Aditya Kishore** - *aditya.kishore@ltts.com*
