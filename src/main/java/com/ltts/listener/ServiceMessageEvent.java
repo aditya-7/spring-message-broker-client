@@ -1,8 +1,8 @@
 package com.ltts.listener;
 
-import org.springframework.context.ApplicationEvent;
-
 import java.util.HashMap;
+
+import org.springframework.context.ApplicationEvent;
 
 public class ServiceMessageEvent extends ApplicationEvent {
 
@@ -17,6 +17,7 @@ public class ServiceMessageEvent extends ApplicationEvent {
 	}
 
 	public HashMap<String, Object> getMessage() {
+
 		return message;
 	}
 

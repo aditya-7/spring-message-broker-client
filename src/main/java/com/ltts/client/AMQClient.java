@@ -44,7 +44,6 @@ public class AMQClient implements MessageBrokerClient {
 				((ActiveMQTextMessage) message).getDestination()
 						.getPhysicalName());
 		applicationEventPublisher.publishEvent(event);
-
 	}
 
 	@Override

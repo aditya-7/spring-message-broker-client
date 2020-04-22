@@ -29,46 +29,52 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 @Configuration
 public class KafkaConfiguration {
 
-    @Value("${spring.kafka.bootstrap-servers}")
-    String bootStrapServerAddress;
+	@Value("${spring.kafka.bootstrap-servers}")
+	String bootStrapServerAddress;
 
-    @Bean
-    public ConsumerFactory<String, Object> consumerFactory() {
-        Map<String, Object> configs = new HashMap<>();
-        configs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                bootStrapServerAddress);
-        //configs.put(ConsumerConfig.GROUP_ID_CONFIG, ConstantMessage.GROUP_ID);
-        configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class);
-        configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                JsonDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(configs,
-                new StringDeserializer(),
-                new JsonDeserializer<>(Object.class));
-    }
+	@Bean
+	public ConsumerFactory<String, Object> consumerFactory() {
+		JsonDeserializer<Object> deserializer = new JsonDeserializer<>(
+				Object.class);
+		deserializer.setRemoveTypeHeaders(false);
+		deserializer.addTrustedPackages("*");
+		deserializer.setUseTypeMapperForKey(true);
 
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
-        return factory;
-    }
+		Map<String, Object> configs = new HashMap<>();
+		configs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+				bootStrapServerAddress);
+		// configs.put(ConsumerConfig.GROUP_ID_CONFIG,
+		// ConstantMessage.GROUP_ID);
+		configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+				StringDeserializer.class);
+		configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+				JsonDeserializer.class);
+		return new DefaultKafkaConsumerFactory<>(configs,
+				new StringDeserializer(), deserializer);
+	}
 
-    @Bean
-    public ProducerFactory<String, Object> producerFactory() {
-        Map<String, Object> configProps = new HashMap<>();
-        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                bootStrapServerAddress);
-        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                StringSerializer.class);
-        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                JsonSerializer.class);
-        return new DefaultKafkaProducerFactory<String, Object>(configProps);
-    }
+	@Bean
+	public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
+		ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+		factory.setConsumerFactory(consumerFactory());
+		return factory;
+	}
 
-    @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate() {
-        return new KafkaTemplate<String, Object>(producerFactory());
-    }
+	@Bean
+	public ProducerFactory<String, Object> producerFactory() {
+		Map<String, Object> configProps = new HashMap<>();
+		configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+				bootStrapServerAddress);
+		configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+				StringSerializer.class);
+		configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+				JsonSerializer.class);
+		return new DefaultKafkaProducerFactory<String, Object>(configProps);
+	}
+
+	@Bean
+	public KafkaTemplate<String, Object> kafkaTemplate() {
+		return new KafkaTemplate<String, Object>(producerFactory());
+	}
 
 }
