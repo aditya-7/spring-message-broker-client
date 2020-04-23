@@ -1,17 +1,16 @@
 # Message-Broker-Client 
-It is a library which enables a spring application to connect to a message broker service from multiple message broker clients available. This library needs to be added as a dependency into the application.
+A client that lets you choose between a set of Message brokers for inter-service communication.
+This can be plugged in as a dependency in a Spring boot project, and a developer can build applications agnostic of the broker running behind the scenes.
+It currently supports Active MQ and Apache Kafka in the backend.
 
-## Building JAR
-Run `mvn clean install` from the project path where pom.xml is present.
-
-## Add As Dependency 
+## How to Use 
 Add the following code snippet to your application's pom.xml.
 
 ```python
 <dependency>
 		<groupId>com.ltts</groupId>
-		<artifactId>message-broker-client</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<artifactId>spring-msg-broker-client-lib</artifactId>
+		<version>1.0.0</version>
 </dependency>
 ```
 
