@@ -14,6 +14,9 @@ import org.springframework.jms.support.converter.MappingJackson2MessageConverter
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 
+/**
+ * AMQ configuration for Consumer and Producer
+ */
 @ConditionalOnProperty(prefix = "spring.activemq.", value = "broker-url")
 @EnableJms
 @Configuration
@@ -25,28 +28,28 @@ public class AMQConfiguration {
 	@Value("${spring.activemq.broker-url}")
 	String BROKER_URL;
 
-	@Value("${spring.activemq.user}")
-	String BROKER_USERNAME;
+    @Value("${spring.activemq.user}")
+    String BROKER_USERNAME;
 
-	@Value("${spring.activemq.password}")
-	String BROKER_PASSWORD;
+    @Value("${spring.activemq.password}")
+    String BROKER_PASSWORD;
 
-	@Bean
-	public ActiveMQConnectionFactory connectionFactory() {
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
-		connectionFactory.setBrokerURL(BROKER_URL);
-		connectionFactory.setPassword(BROKER_USERNAME);
-		connectionFactory.setUserName(BROKER_PASSWORD);
-		return connectionFactory;
-	}
+    @Bean
+    public ActiveMQConnectionFactory connectionFactory() {
+        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
+        connectionFactory.setBrokerURL(BROKER_URL);
+        connectionFactory.setPassword(BROKER_USERNAME);
+        connectionFactory.setUserName(BROKER_PASSWORD);
+        return connectionFactory;
+    }
 
-	@Bean // Serialize message content to json using TextMessage
-	public MessageConverter jacksonJmsMessageConverter() {
-		MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-		converter.setTargetType(MessageType.TEXT);
-		converter.setTypeIdPropertyName("_type");
-		return converter;
-	}
+    @Bean
+    public MessageConverter jacksonJmsMessageConverter() {
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        converter.setTargetType(MessageType.TEXT);
+        converter.setTypeIdPropertyName("_type");
+        return converter;
+    }
 
 	@Bean
 	public DefaultJmsListenerContainerFactory jmsListenerContainerFactory() {
@@ -61,13 +64,13 @@ public class AMQConfiguration {
 		return factory;
 	}
 
-	@Bean
-	public JmsTemplate jmsTemplate() {
-		JmsTemplate template = new JmsTemplate();
-		template.setConnectionFactory(connectionFactory());
-		template.setPubSubDomain(true);
-		template.setMessageConverter(jacksonJmsMessageConverter());
-		return template;
-	}
+    @Bean
+    public JmsTemplate jmsTemplate() {
+        JmsTemplate template = new JmsTemplate();
+        template.setConnectionFactory(connectionFactory());
+        template.setPubSubDomain(true);
+        template.setMessageConverter(jacksonJmsMessageConverter());
+        return template;
+    }
 
 }
