@@ -32,7 +32,6 @@ public class KafkaClient implements MessageBrokerClient {
 			"${spring.kafka.topic.name}" }, groupId = "${spring.kafka.group.id}", containerFactory = "kafkaListenerContainerFactory")
 	public void consume(Object kafkaMsg) {
 		ConsumerRecord record = (ConsumerRecord) kafkaMsg;
-		System.out.println("ConsumerValue" + record.value());
 		HashMap<String, Object> map = (HashMap) record.value();
 		ServiceMessageEvent event = new ServiceMessageEvent(this, map,
 				record.topic());

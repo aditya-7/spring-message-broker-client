@@ -37,13 +37,14 @@ public class AMQClient implements MessageBrokerClient {
 		try {
 			json = ((ActiveMQTextMessage) message).getText();
 			map = mapper.readValue(json, HashMap.class);
+			ServiceMessageEvent event = new ServiceMessageEvent(this, map,
+					((ActiveMQTextMessage) message).getDestination()
+							.getPhysicalName());
+			applicationEventPublisher.publishEvent(event);
+			logger.info("Published event on " + event.getTopic());
 		} catch (Exception e) {
-			logger.error("Exception: " + e);
+			logger.error("Exception while consuming ", e);
 		}
-		ServiceMessageEvent event = new ServiceMessageEvent(this, map,
-				((ActiveMQTextMessage) message).getDestination()
-						.getPhysicalName());
-		applicationEventPublisher.publishEvent(event);
 	}
 
 	@Override

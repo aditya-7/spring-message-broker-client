@@ -1,4 +1,4 @@
-# Message-Broker-Client 
+# Spring Message Broker Client Library
 It is a library which enables a spring application to connect to a message broker service from multiple message broker clients available. This library needs to be added as a dependency into the application.
 
 ## Building JAR
@@ -11,7 +11,7 @@ Add the following code snippet to your application's pom.xml.
 <dependency>
 		<groupId>com.ltts</groupId>
 		<artifactId>message-broker-client</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>${version}</version>
 </dependency>
 ```
 
