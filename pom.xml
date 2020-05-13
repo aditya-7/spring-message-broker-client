@@ -11,7 +11,7 @@
     </parent>
     <groupId>com.ltts</groupId>
     <artifactId>spring-msg-broker-client-lib</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>message-broker-client</name>
     <description>Generic message broker client</description>
 
