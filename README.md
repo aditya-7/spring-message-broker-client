@@ -9,13 +9,9 @@ Add the following code snippet to your application's pom.xml.
 ```python
 <dependency>
 		<groupId>com.ltts</groupId>
-<<<<<<< HEAD
-		<artifactId>message-broker-client</artifactId>
-		<version>${version}</version>
-=======
 		<artifactId>spring-msg-broker-client-lib</artifactId>
 		<version>1.0.0</version>
->>>>>>> release_candidate
+
 </dependency>
 ```
 
