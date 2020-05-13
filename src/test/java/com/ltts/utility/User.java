@@ -1,14 +1,14 @@
 package com.ltts.utility;
 
-public class ClientModel {
+public class User {
 
     private String firstName;
     private String lastName;
 
-    public ClientModel() {
+    public User() {
     }
 
-    public ClientModel(String firstName, String lastName) {
+    public User(String firstName, String lastName) {
         super();
         this.firstName = firstName;
         this.lastName = lastName;

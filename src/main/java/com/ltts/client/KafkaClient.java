@@ -17,30 +17,40 @@ import java.util.HashMap;
 @ConditionalOnProperty(prefix = "spring.kafka.", value = "bootstrap-servers")
 public class KafkaClient implements MessageBrokerClient {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(KafkaClient.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(KafkaClient.class);
 
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+	@Autowired
+	private ApplicationEventPublisher applicationEventPublisher;
 
-    @Autowired
-    private KafkaTemplate<String, Object> kafkaTemplate;
+	@Autowired
+	private KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Override
-    @KafkaListener(topics = {
-            "${spring.kafka.topic.name}"}, groupId = "${spring.kafka.group.id}", containerFactory = "kafkaListenerContainerFactory")
-    public void consume(Object kafkaMsg) {
-        ConsumerRecord record = (ConsumerRecord) kafkaMsg;
-        HashMap<String, Object> map = (HashMap) record.value();
-        ServiceMessageEvent event = new ServiceMessageEvent(this, map,
-                record.topic());
-        applicationEventPublisher.publishEvent(event);
-    }
+	@Override
+	@KafkaListener(topics = {
+			"${spring.kafka.topic.name}" }, groupId = "${spring.kafka.group.id}", containerFactory = "kafkaListenerContainerFactory")
+	public void consume(Object kafkaMsg) {
+		try {
+			ConsumerRecord record = (ConsumerRecord) kafkaMsg;
+			HashMap<String, Object> map = (HashMap) record.value();
+			ServiceMessageEvent event = new ServiceMessageEvent(this, map,
+					record.topic());
+			applicationEventPublisher.publishEvent(event);
+		} catch (Exception e) {
+			logger.error("Exception while consuming: ", e);
+		}
 
-    @Override
-    public <T> void produce(String topic, T kafkaMsg) {
-        kafkaTemplate.send(topic, kafkaMsg);
-        logger.trace("Message published into topic: " + topic);
-    }
+	}
+
+	@Override
+	public <T> void produce(String topic, T kafkaMsg) {
+		try {
+			kafkaTemplate.send(topic, kafkaMsg);
+			logger.trace("Message published into topic: {}" + topic);
+		} catch (Exception e) {
+			logger.error("Exception while publishing: ", e);
+			throw e;
+		}
+	}
 
 }
