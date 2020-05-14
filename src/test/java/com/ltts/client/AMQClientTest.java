@@ -15,11 +15,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.ltts.config.AMQConfiguration;
 import com.ltts.utility.EventListenerTwin;
+import com.ltts.utility.ExceptionListenerTwin;
 import com.ltts.utility.User;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { AMQClient.class, AMQConfiguration.class,
-		EventListenerTwin.class })
+		EventListenerTwin.class, ExceptionListenerTwin.class })
 public class AMQClientTest {
 
 	private static final Logger LOGGER = LoggerFactory
@@ -33,6 +34,9 @@ public class AMQClientTest {
 	@Autowired
 	private EventListenerTwin twin;
 
+	@Autowired
+	private ExceptionListenerTwin exceptionListener;
+
 	@ClassRule
 	public static EmbeddedActiveMQBroker embeddedActiveMQ = new EmbeddedActiveMQBroker();
 
@@ -44,22 +48,31 @@ public class AMQClientTest {
 	}
 
 	@Test
-	public void testProduceWithNullTopic() {
+	public void testProduceWithNullTopic() throws InterruptedException {
 		User clientModel = new User("Robert", "Plant");
-		try {
-			amqClient.produce(null, clientModel);
-		} catch (Exception e) {
-			assertEquals("Destination name must not be null", e.getMessage());
-		}
+		amqClient.produce(null, clientModel);
+		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
+		assertEquals("Destination name must not be null",
+				ExceptionListenerTwin.exception.getMessage());
+
 	}
 
 	@Test
-	public void testProduceWithNullMessage() {
-		try {
-			amqClient.produce("amq.test.topic", null);
-		} catch (Exception e) {
-			assertEquals(null, e.getMessage());
-		}
+	public void testProduceWithNullMessage() throws InterruptedException {
+		amqClient.produce("amq.test.topic", null);
+		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
+		assertEquals(null, ExceptionListenerTwin.exception.getMessage());
+	}
+
+	@Test
+	public void testProduceWithInvalidMessage() throws InterruptedException {
+		amqClient.produce("amq.test.topic", "Jimmy");
+		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
+		assertEquals(
+				"Cannot construct instance of `java.util.HashMap` (although at least one Creator exists): no String-argument "
+						+ "constructor/factory method to deserialize from String value ('Jimmy')\n"
+						+ " at [Source: (String)\"\"Jimmy\"\"; line: 1, column: 1]",
+				ExceptionListenerTwin.exception.getMessage());
 	}
 
 	@Test

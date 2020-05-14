@@ -1,10 +1,17 @@
 package com.ltts.client;
 
-import com.ltts.config.KafkaConfiguration;
-import com.ltts.utility.User;
-import com.ltts.utility.EventListenerTwin;
+import static org.junit.Assert.assertEquals;
+
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -23,15 +30,14 @@ import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import com.ltts.config.KafkaConfiguration;
+import com.ltts.utility.EventListenerTwin;
+import com.ltts.utility.ExceptionListenerTwin;
+import com.ltts.utility.User;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { KafkaClient.class, KafkaConfiguration.class,
-		EventListenerTwin.class })
+		EventListenerTwin.class, ExceptionListenerTwin.class })
 @DirtiesContext
 public class KafkaClientTest {
 
@@ -47,6 +53,9 @@ public class KafkaClientTest {
 
 	@Autowired
 	private EventListenerTwin twin;
+
+	@Autowired
+	private ExceptionListenerTwin exceptionListener;
 
 	@Mock
 	private KafkaTemplate<String, Object> kafkaTemplate;
@@ -120,13 +129,23 @@ public class KafkaClientTest {
 	}
 
 	@Test
-	public void testKafkProduceExceptionWithNullTopic() {
+	public void testKafkProduceExceptionWithNullTopic()
+			throws InterruptedException {
 		User userModel = new User("Jimmy", "Page");
-		try {
-			kafkaClient.produce(null, userModel);
-		} catch (Exception e) {
-			assertEquals("Topic cannot be null.", e.getMessage());
-		}
+		kafkaClient.produce(null, userModel);
+		Thread.sleep(KAFKA_MESSAGE_TIMEOUT_IN_MILLISECONDS);
+		assertEquals("Topic cannot be null.",
+				ExceptionListenerTwin.exception.getMessage());
+
+	}
+
+	@Test
+	public void testKafkProduceExceptionWithInvalidMessage()
+			throws InterruptedException {
+		kafkaClient.produce(TOPIC, "Jimmy");
+		Thread.sleep(KAFKA_MESSAGE_TIMEOUT_IN_MILLISECONDS);
+		assertEquals("java.lang.String cannot be cast to java.util.HashMap",
+				ExceptionListenerTwin.exception.getMessage());
 
 	}
 

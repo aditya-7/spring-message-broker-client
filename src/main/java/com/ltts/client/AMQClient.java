@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020,L&T Technology Services.
+ * All Rights Reserved.
+ */
+
 package com.ltts.client;
 
 import java.util.HashMap;
@@ -13,8 +18,13 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ltts.event.ServiceExceptionEvent;
 import com.ltts.event.ServiceMessageEvent;
 
+/**
+ * AMQClient which produces/consumes message
+ *
+ */
 @Service
 @ConditionalOnProperty(prefix = "spring.activemq.", value = "broker-url")
 public class AMQClient implements MessageBrokerClient {
@@ -28,6 +38,9 @@ public class AMQClient implements MessageBrokerClient {
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
+	/**
+	 * It consumes the message and publishes to eventlistener
+	 */
 	@Override
 	@JmsListener(destination = "${spring.activemq.topic.name}")
 	public void consume(Object message) {
@@ -44,9 +57,15 @@ public class AMQClient implements MessageBrokerClient {
 			logger.info("Published event on: {}", event.getTopic());
 		} catch (Exception e) {
 			logger.error("Exception while consuming: ", e);
+			ServiceExceptionEvent exceptionEvent = new ServiceExceptionEvent(
+					this, e);
+			applicationEventPublisher.publishEvent(exceptionEvent);
 		}
 	}
 
+	/**
+	 * It publishes the message to specified topic
+	 */
 	@Override
 	public <T> void produce(String topic, T message) {
 
@@ -55,7 +74,9 @@ public class AMQClient implements MessageBrokerClient {
 			logger.trace("Message published into topic: {}", topic);
 		} catch (Exception e) {
 			logger.error("Exception while publishing", e);
-			throw e;
+			ServiceExceptionEvent exceptionEvent = new ServiceExceptionEvent(
+					this, e);
+			applicationEventPublisher.publishEvent(exceptionEvent);
 		}
 
 	}

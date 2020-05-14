@@ -1,5 +1,11 @@
+/*
+ * Copyright (c) 2020,L&T Technology Services.
+ * All Rights Reserved.
+ */
+
 package com.ltts.client;
 
+import com.ltts.event.ServiceExceptionEvent;
 import com.ltts.event.ServiceMessageEvent;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -13,6 +19,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 
+/**
+ * KafkaClient which produces/consumes message
+ *
+ */
 @Service
 @ConditionalOnProperty(prefix = "spring.kafka.", value = "bootstrap-servers")
 public class KafkaClient implements MessageBrokerClient {
@@ -26,6 +36,9 @@ public class KafkaClient implements MessageBrokerClient {
 	@Autowired
 	private KafkaTemplate<String, Object> kafkaTemplate;
 
+	/**
+	 * It consumes the message and publishes to eventlistener
+	 */
 	@Override
 	@KafkaListener(topics = {
 			"${spring.kafka.topic.name}" }, groupId = "${spring.kafka.group.id}", containerFactory = "kafkaListenerContainerFactory")
@@ -38,10 +51,16 @@ public class KafkaClient implements MessageBrokerClient {
 			applicationEventPublisher.publishEvent(event);
 		} catch (Exception e) {
 			logger.error("Exception while consuming: ", e);
+			ServiceExceptionEvent exceptionEvent = new ServiceExceptionEvent(
+					this, e);
+			applicationEventPublisher.publishEvent(exceptionEvent);
 		}
 
 	}
 
+	/**
+	 * It publishes the message to specified topic
+	 */
 	@Override
 	public <T> void produce(String topic, T kafkaMsg) {
 		try {
@@ -49,7 +68,9 @@ public class KafkaClient implements MessageBrokerClient {
 			logger.trace("Message published into topic: {}" + topic);
 		} catch (Exception e) {
 			logger.error("Exception while publishing: ", e);
-			throw e;
+			ServiceExceptionEvent exceptionEvent = new ServiceExceptionEvent(
+					this, e);
+			applicationEventPublisher.publishEvent(exceptionEvent);
 		}
 	}
 
