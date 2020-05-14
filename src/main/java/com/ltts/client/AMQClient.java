@@ -7,6 +7,8 @@ package com.ltts.client;
 
 import java.util.HashMap;
 
+import javax.jms.JMSException;
+
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +19,12 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ltts.event.ServiceExceptionEvent;
+import com.ltts.constants.ConstantMessage;
 import com.ltts.event.ServiceMessageEvent;
+import com.ltts.exception.MessageBrokerException;
 
 /**
  * AMQClient which produces/consumes message
@@ -40,6 +45,9 @@ public class AMQClient implements MessageBrokerClient {
 
 	/**
 	 * It consumes the message and publishes to eventlistener
+	 * 
+	 * @throws JsonProcessingException
+	 * @throws JsonMappingException
 	 */
 	@Override
 	@JmsListener(destination = "${spring.activemq.topic.name}")
@@ -49,18 +57,33 @@ public class AMQClient implements MessageBrokerClient {
 		HashMap<String, Object> map = null;
 		try {
 			json = ((ActiveMQTextMessage) message).getText();
-			map = mapper.readValue(json, HashMap.class);
-			ServiceMessageEvent event = new ServiceMessageEvent(this, map,
-					((ActiveMQTextMessage) message).getDestination()
-							.getPhysicalName());
-			applicationEventPublisher.publishEvent(event);
-			logger.info("Published event on: {}", event.getTopic());
-		} catch (Exception e) {
-			logger.error("Exception while consuming: ", e);
-			ServiceExceptionEvent exceptionEvent = new ServiceExceptionEvent(
-					this, e);
+		} catch (JMSException e) {
+			MessageBrokerException brokerException = new MessageBrokerException(
+					e, ConstantMessage.JMS_EXCEPTION);
+			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
+					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
 		}
+		try {
+			map = mapper.readValue(json, HashMap.class);
+			ServiceMessageEvent messageEvent = new ServiceMessageEvent(this,
+					map, ((ActiveMQTextMessage) message).getDestination()
+							.getPhysicalName());
+			applicationEventPublisher.publishEvent(messageEvent);
+		} catch (JsonMappingException e) {
+			MessageBrokerException brokerException = new MessageBrokerException(
+					e, ConstantMessage.INCOMPATABLE_TYPES);
+			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
+					brokerException);
+			applicationEventPublisher.publishEvent(exceptionEvent);
+		} catch (JsonProcessingException e) {
+			MessageBrokerException brokerException = new MessageBrokerException(
+					e, ConstantMessage.INCOMPATABLE_TYPES);
+			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
+					brokerException);
+			applicationEventPublisher.publishEvent(exceptionEvent);
+		}
+
 	}
 
 	/**
@@ -72,10 +95,17 @@ public class AMQClient implements MessageBrokerClient {
 		try {
 			jmsTemplate.convertAndSend(topic, message);
 			logger.trace("Message published into topic: {}", topic);
-		} catch (Exception e) {
-			logger.error("Exception while publishing", e);
-			ServiceExceptionEvent exceptionEvent = new ServiceExceptionEvent(
-					this, e);
+		} catch (IllegalArgumentException e) {
+			MessageBrokerException brokerException = new MessageBrokerException(
+					e, ConstantMessage.INVALID_TOPIC);
+			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
+					brokerException);
+			applicationEventPublisher.publishEvent(exceptionEvent);
+		} catch (NullPointerException e) {
+			MessageBrokerException brokerException = new MessageBrokerException(
+					e, ConstantMessage.INVALID_MESSAGE);
+			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
+					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
 		}
 

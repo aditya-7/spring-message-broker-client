@@ -32,12 +32,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.ltts.config.KafkaConfiguration;
 import com.ltts.utility.EventListenerTwin;
-import com.ltts.utility.ExceptionListenerTwin;
 import com.ltts.utility.User;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { KafkaClient.class, KafkaConfiguration.class,
-		EventListenerTwin.class, ExceptionListenerTwin.class })
+		EventListenerTwin.class })
 @DirtiesContext
 public class KafkaClientTest {
 
@@ -53,9 +52,6 @@ public class KafkaClientTest {
 
 	@Autowired
 	private EventListenerTwin twin;
-
-	@Autowired
-	private ExceptionListenerTwin exceptionListener;
 
 	@Mock
 	private KafkaTemplate<String, Object> kafkaTemplate;
@@ -134,8 +130,7 @@ public class KafkaClientTest {
 		User userModel = new User("Jimmy", "Page");
 		kafkaClient.produce(null, userModel);
 		Thread.sleep(KAFKA_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals("Topic cannot be null.",
-				ExceptionListenerTwin.exception.getMessage());
+		assertEquals("Invalid Topic", EventListenerTwin.exception.getMessage());
 
 	}
 
@@ -144,8 +139,7 @@ public class KafkaClientTest {
 			throws InterruptedException {
 		kafkaClient.produce(TOPIC, "Jimmy");
 		Thread.sleep(KAFKA_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals("java.lang.String cannot be cast to java.util.HashMap",
-				ExceptionListenerTwin.exception.getMessage());
+		assertEquals("Invalid Json", EventListenerTwin.exception.getMessage());
 
 	}
 

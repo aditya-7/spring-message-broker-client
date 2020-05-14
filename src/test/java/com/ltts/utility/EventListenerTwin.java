@@ -13,11 +13,13 @@ public class EventListenerTwin
 
 	public static HashMap<String, Object> message;
 	public static String topic;
+	public static Throwable exception;
 
 	@Override
 	public void onApplicationEvent(ServiceMessageEvent event) {
 		message = event.getMessage();
 		topic = event.getTopic();
+		exception = event.getException();
 	}
 
 }

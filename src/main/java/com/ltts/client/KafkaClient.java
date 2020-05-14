@@ -5,8 +5,8 @@
 
 package com.ltts.client;
 
-import com.ltts.event.ServiceExceptionEvent;
-import com.ltts.event.ServiceMessageEvent;
+import java.util.HashMap;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import com.ltts.constants.ConstantMessage;
+import com.ltts.event.ServiceMessageEvent;
+import com.ltts.exception.MessageBrokerException;
 
 /**
  * KafkaClient which produces/consumes message
@@ -43,16 +45,17 @@ public class KafkaClient implements MessageBrokerClient {
 	@KafkaListener(topics = {
 			"${spring.kafka.topic.name}" }, groupId = "${spring.kafka.group.id}", containerFactory = "kafkaListenerContainerFactory")
 	public void consume(Object kafkaMsg) {
+		ConsumerRecord record = (ConsumerRecord) kafkaMsg;
 		try {
-			ConsumerRecord record = (ConsumerRecord) kafkaMsg;
 			HashMap<String, Object> map = (HashMap) record.value();
-			ServiceMessageEvent event = new ServiceMessageEvent(this, map,
-					record.topic());
-			applicationEventPublisher.publishEvent(event);
+			ServiceMessageEvent messageEvent = new ServiceMessageEvent(this,
+					map, record.topic());
+			applicationEventPublisher.publishEvent(messageEvent);
 		} catch (Exception e) {
-			logger.error("Exception while consuming: ", e);
-			ServiceExceptionEvent exceptionEvent = new ServiceExceptionEvent(
-					this, e);
+			MessageBrokerException brokerException = new MessageBrokerException(
+					e, ConstantMessage.INCOMPATABLE_TYPES);
+			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
+					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
 		}
 
@@ -67,11 +70,11 @@ public class KafkaClient implements MessageBrokerClient {
 			kafkaTemplate.send(topic, kafkaMsg);
 			logger.trace("Message published into topic: {}" + topic);
 		} catch (Exception e) {
-			logger.error("Exception while publishing: ", e);
-			ServiceExceptionEvent exceptionEvent = new ServiceExceptionEvent(
-					this, e);
+			MessageBrokerException brokerException = new MessageBrokerException(
+					e, ConstantMessage.INVALID_TOPIC);
+			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
+					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
 		}
 	}
-
 }

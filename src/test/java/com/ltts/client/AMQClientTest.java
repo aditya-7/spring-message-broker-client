@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.apache.activemq.junit.EmbeddedActiveMQBroker;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -15,12 +16,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.ltts.config.AMQConfiguration;
 import com.ltts.utility.EventListenerTwin;
-import com.ltts.utility.ExceptionListenerTwin;
 import com.ltts.utility.User;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { AMQClient.class, AMQConfiguration.class,
-		EventListenerTwin.class, ExceptionListenerTwin.class })
+		EventListenerTwin.class, })
 public class AMQClientTest {
 
 	private static final Logger LOGGER = LoggerFactory
@@ -33,9 +33,6 @@ public class AMQClientTest {
 
 	@Autowired
 	private EventListenerTwin twin;
-
-	@Autowired
-	private ExceptionListenerTwin exceptionListener;
 
 	@ClassRule
 	public static EmbeddedActiveMQBroker embeddedActiveMQ = new EmbeddedActiveMQBroker();
@@ -52,8 +49,7 @@ public class AMQClientTest {
 		User clientModel = new User("Robert", "Plant");
 		amqClient.produce(null, clientModel);
 		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals("Destination name must not be null",
-				ExceptionListenerTwin.exception.getMessage());
+		assertEquals("Invalid Topic", EventListenerTwin.exception.getMessage());
 
 	}
 
@@ -61,18 +57,15 @@ public class AMQClientTest {
 	public void testProduceWithNullMessage() throws InterruptedException {
 		amqClient.produce("amq.test.topic", null);
 		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals(null, ExceptionListenerTwin.exception.getMessage());
+		assertEquals("Invalid Message",
+				EventListenerTwin.exception.getMessage());
 	}
 
 	@Test
 	public void testProduceWithInvalidMessage() throws InterruptedException {
 		amqClient.produce("amq.test.topic", "Jimmy");
 		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals(
-				"Cannot construct instance of `java.util.HashMap` (although at least one Creator exists): no String-argument "
-						+ "constructor/factory method to deserialize from String value ('Jimmy')\n"
-						+ " at [Source: (String)\"\"Jimmy\"\"; line: 1, column: 1]",
-				ExceptionListenerTwin.exception.getMessage());
+		assertEquals("Invalid Json", EventListenerTwin.exception.getMessage());
 	}
 
 	@Test
