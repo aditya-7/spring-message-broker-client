@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.apache.activemq.junit.EmbeddedActiveMQBroker;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -49,22 +48,39 @@ public class AMQClientTest {
 		User clientModel = new User("Robert", "Plant");
 		amqClient.produce(null, clientModel);
 		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals("Null Topic", EventListenerTwin.exception.getMessage());
+		assertEquals("Invalid topic name",
+				EventListenerTwin.exception.getMessage());
 
+	}
+
+	@Test
+	public void testProduceWithEmptyTopic() throws InterruptedException {
+		amqClient.produce("", "Jimmy");
+		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
+		assertEquals("Invalid topic name",
+				EventListenerTwin.exception.getMessage());
 	}
 
 	@Test
 	public void testProduceWithNullMessage() throws InterruptedException {
 		amqClient.produce("amq.test.topic", null);
 		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals("Null Message", EventListenerTwin.exception.getMessage());
+		assertEquals("Invalid message",
+				EventListenerTwin.exception.getMessage());
 	}
 
 	@Test
-	public void testProduceWithInvalidMessage() throws InterruptedException {
+	public void testConsumeWithInvalidMessage() throws InterruptedException {
 		amqClient.produce("amq.test.topic", "Jimmy");
 		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals("Invalid Json", EventListenerTwin.exception.getMessage());
+		assertEquals("Invalid JSON", EventListenerTwin.exception.getMessage());
+	}
+
+	@Test
+	public void testConsumeWithEmptyMessage() throws InterruptedException {
+		amqClient.produce("amq.test.topic", "");
+		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
+		assertEquals("Invalid JSON", EventListenerTwin.exception.getMessage());
 	}
 
 	@Test

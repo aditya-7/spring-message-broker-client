@@ -61,25 +61,25 @@ public class AMQClient implements MessageBrokerClient {
 			applicationEventPublisher.publishEvent(messageEvent);
 		} catch (JMSException e) {
 			MessageBrokerException brokerException = new MessageBrokerException(
-					e, ConstantMessage.JMS_EXCEPTION);
+					e, ConstantMessage.INCOMPATIBLE_TYPE);
 			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
 					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
 		} catch (JsonMappingException e) {
 			MessageBrokerException brokerException = new MessageBrokerException(
-					e, ConstantMessage.INCOMPATABLE_TYPES);
+					e, ConstantMessage.INVALID_JSON);
 			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
 					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
 		} catch (JsonProcessingException e) {
 			MessageBrokerException brokerException = new MessageBrokerException(
-					e, ConstantMessage.JSON_PRPCOESSING);
+					e, ConstantMessage.JSON_PRPCOESSING_FAILED);
 			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
 					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
 		} catch (Exception e) {
 			MessageBrokerException brokerException = new MessageBrokerException(
-					e, ConstantMessage.GENERAL_EXCEPTION);
+					e, ConstantMessage.GENERIC_EXCEPTION);
 			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
 					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
@@ -92,21 +92,20 @@ public class AMQClient implements MessageBrokerClient {
 	 */
 	@Override
 	public <T> void produce(String topic, T message) {
-
 		try {
 			jmsTemplate.convertAndSend(topic, message);
 			logger.trace("Message published into topic: {}", topic);
 		} catch (IllegalArgumentException e) {
-			MessageBrokerException brokerException = new MessageBrokerException(
-					e, ConstantMessage.INVALID_TOPIC);
+			MessageBrokerException messageBrokerException = new MessageBrokerException(
+					e, ConstantMessage.INAVALID_TOPIC_NAME);
 			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
-					brokerException);
+					messageBrokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
 		} catch (NullPointerException e) {
-			MessageBrokerException brokerException = new MessageBrokerException(
+			MessageBrokerException messageBrokerException = new MessageBrokerException(
 					e, ConstantMessage.INVALID_MESSAGE);
 			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
-					brokerException);
+					messageBrokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
 		}
 

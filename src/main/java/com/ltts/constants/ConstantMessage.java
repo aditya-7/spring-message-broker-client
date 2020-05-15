@@ -13,18 +13,18 @@ public class ConstantMessage {
 	private ConstantMessage() {
 	}
 
-	public static final String INVALID_TOPIC = "Null Topic";
+	public static final String INAVALID_TOPIC_NAME = "Invalid topic name";
 
-	public static final String INVALID_MESSAGE = "Null Message";
+	public static final String INVALID_MESSAGE = "Invalid message";
 
-	public static final String INCOMPATABLE_TYPES = "Invalid Json";
+	public static final String INVALID_JSON = "Invalid JSON";
 
-	public static final String JMS_EXCEPTION = "Can't typecast message to ActiveMQTextMessage";
+	public static final String INCOMPATIBLE_TYPE = "Incompatible message type";
 
 	public static final String UNRECOGNIZED_PROPERTIES_IN_OBJECT = "Unrecognized fileds occured";
 
-	public static final String JSON_PRPCOESSING = "Invalid Json";
+	public static final String JSON_PRPCOESSING_FAILED = "Failed to process message in JSON format";
 
-	public static final String GENERAL_EXCEPTION = "General exception";
+	public static final String GENERIC_EXCEPTION = "Exception while consuming message";
 
 }

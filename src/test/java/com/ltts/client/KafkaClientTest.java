@@ -125,21 +125,37 @@ public class KafkaClientTest {
 	}
 
 	@Test
-	public void testKafkProduceExceptionWithNullTopic()
-			throws InterruptedException {
+	public void testKafkProduceWithNullTopic() throws InterruptedException {
 		User userModel = new User("Jimmy", "Page");
 		kafkaClient.produce(null, userModel);
 		Thread.sleep(KAFKA_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals("Null Topic", EventListenerTwin.exception.getMessage());
+		assertEquals("Invalid topic name",
+				EventListenerTwin.exception.getMessage());
 
 	}
 
 	@Test
-	public void testKafkProduceExceptionWithInvalidMessage()
+	public void testKafkProduceWithEmptyTopic() throws InterruptedException {
+		User userModel = new User("Jimmy", "Page");
+		kafkaClient.produce("", userModel);
+		assertEquals("Invalid topic name",
+				EventListenerTwin.exception.getMessage());
+	}
+
+	@Test
+	public void testKafkConsumeWithInvalidMessage()
 			throws InterruptedException {
 		kafkaClient.produce(TOPIC, "Jimmy");
 		Thread.sleep(KAFKA_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals("Invalid Json", EventListenerTwin.exception.getMessage());
+		assertEquals("Invalid JSON", EventListenerTwin.exception.getMessage());
+
+	}
+
+	@Test
+	public void testKafkaConsumeWithEmptyMessage() throws InterruptedException {
+		kafkaClient.produce(TOPIC, "");
+		Thread.sleep(KAFKA_MESSAGE_TIMEOUT_IN_MILLISECONDS);
+		assertEquals("Invalid JSON", EventListenerTwin.exception.getMessage());
 
 	}
 

@@ -8,6 +8,7 @@ package com.ltts.client;
 import java.util.HashMap;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.errors.InvalidTopicException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,15 +46,21 @@ public class KafkaClient implements MessageBrokerClient {
 	@KafkaListener(topics = {
 			"${spring.kafka.topic.name}" }, groupId = "${spring.kafka.group.id}", containerFactory = "kafkaListenerContainerFactory")
 	public void consume(Object kafkaMsg) {
-		ConsumerRecord record = (ConsumerRecord) kafkaMsg;
 		try {
+			ConsumerRecord record = (ConsumerRecord) kafkaMsg;
 			HashMap<String, Object> map = (HashMap) record.value();
 			ServiceMessageEvent messageEvent = new ServiceMessageEvent(this,
 					map, record.topic());
 			applicationEventPublisher.publishEvent(messageEvent);
+		} catch (ClassCastException e) {
+			MessageBrokerException brokerException = new MessageBrokerException(
+					e, ConstantMessage.INVALID_JSON);
+			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
+					brokerException);
+			applicationEventPublisher.publishEvent(exceptionEvent);
 		} catch (Exception e) {
 			MessageBrokerException brokerException = new MessageBrokerException(
-					e, ConstantMessage.INCOMPATABLE_TYPES);
+					e, ConstantMessage.GENERIC_EXCEPTION);
 			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
 					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
@@ -67,11 +74,20 @@ public class KafkaClient implements MessageBrokerClient {
 	@Override
 	public <T> void produce(String topic, T kafkaMsg) {
 		try {
+			if ("".equals(topic)) {
+				throw new InvalidTopicException();
+			}
 			kafkaTemplate.send(topic, kafkaMsg);
 			logger.trace("Message published into topic: {}" + topic);
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			MessageBrokerException brokerException = new MessageBrokerException(
-					e, ConstantMessage.INVALID_TOPIC);
+					e, ConstantMessage.INAVALID_TOPIC_NAME);
+			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
+					brokerException);
+			applicationEventPublisher.publishEvent(exceptionEvent);
+		} catch (InvalidTopicException e) {
+			MessageBrokerException brokerException = new MessageBrokerException(
+					e, ConstantMessage.INAVALID_TOPIC_NAME);
 			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
 					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
