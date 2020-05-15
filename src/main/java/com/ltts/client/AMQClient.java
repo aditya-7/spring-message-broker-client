@@ -45,9 +45,6 @@ public class AMQClient implements MessageBrokerClient {
 
 	/**
 	 * It consumes the message and publishes to eventlistener
-	 * 
-	 * @throws JsonProcessingException
-	 * @throws JsonMappingException
 	 */
 	@Override
 	@JmsListener(destination = "${spring.activemq.topic.name}")
@@ -57,19 +54,17 @@ public class AMQClient implements MessageBrokerClient {
 		HashMap<String, Object> map = null;
 		try {
 			json = ((ActiveMQTextMessage) message).getText();
+			map = mapper.readValue(json, HashMap.class);
+			ServiceMessageEvent messageEvent = new ServiceMessageEvent(this,
+					map, ((ActiveMQTextMessage) message).getDestination()
+							.getPhysicalName());
+			applicationEventPublisher.publishEvent(messageEvent);
 		} catch (JMSException e) {
 			MessageBrokerException brokerException = new MessageBrokerException(
 					e, ConstantMessage.JMS_EXCEPTION);
 			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
 					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);
-		}
-		try {
-			map = mapper.readValue(json, HashMap.class);
-			ServiceMessageEvent messageEvent = new ServiceMessageEvent(this,
-					map, ((ActiveMQTextMessage) message).getDestination()
-							.getPhysicalName());
-			applicationEventPublisher.publishEvent(messageEvent);
 		} catch (JsonMappingException e) {
 			MessageBrokerException brokerException = new MessageBrokerException(
 					e, ConstantMessage.INCOMPATABLE_TYPES);
@@ -78,7 +73,13 @@ public class AMQClient implements MessageBrokerClient {
 			applicationEventPublisher.publishEvent(exceptionEvent);
 		} catch (JsonProcessingException e) {
 			MessageBrokerException brokerException = new MessageBrokerException(
-					e, ConstantMessage.INCOMPATABLE_TYPES);
+					e, ConstantMessage.JSON_PRPCOESSING);
+			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
+					brokerException);
+			applicationEventPublisher.publishEvent(exceptionEvent);
+		} catch (Exception e) {
+			MessageBrokerException brokerException = new MessageBrokerException(
+					e, ConstantMessage.GENERAL_EXCEPTION);
 			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
 					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);

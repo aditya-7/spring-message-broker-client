@@ -49,7 +49,7 @@ public class AMQClientTest {
 		User clientModel = new User("Robert", "Plant");
 		amqClient.produce(null, clientModel);
 		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals("Invalid Topic", EventListenerTwin.exception.getMessage());
+		assertEquals("Null Topic", EventListenerTwin.exception.getMessage());
 
 	}
 
@@ -57,8 +57,7 @@ public class AMQClientTest {
 	public void testProduceWithNullMessage() throws InterruptedException {
 		amqClient.produce("amq.test.topic", null);
 		Thread.sleep(AMQ_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals("Invalid Message",
-				EventListenerTwin.exception.getMessage());
+		assertEquals("Null Message", EventListenerTwin.exception.getMessage());
 	}
 
 	@Test

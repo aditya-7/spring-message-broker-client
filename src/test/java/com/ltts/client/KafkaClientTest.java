@@ -130,7 +130,7 @@ public class KafkaClientTest {
 		User userModel = new User("Jimmy", "Page");
 		kafkaClient.produce(null, userModel);
 		Thread.sleep(KAFKA_MESSAGE_TIMEOUT_IN_MILLISECONDS);
-		assertEquals("Invalid Topic", EventListenerTwin.exception.getMessage());
+		assertEquals("Null Topic", EventListenerTwin.exception.getMessage());
 
 	}
 

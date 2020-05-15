@@ -33,4 +33,16 @@ public class MessageBrokerClientTest {
 		assertEquals("nairobi", userResult.getLastName());
 	}
 
+	@Test
+	public void testGetDaoWithException() {
+		HashMap<String, Object> hashMap = new HashMap<>();
+		hashMap.put("firstname", "tokyo");
+		hashMap.put("lastname", "nairobi");
+		try {
+			User userResult = MessageBrokerClient.getDao(hashMap, User.class);
+		} catch (Exception e) {
+			assertEquals("Unrecognized fileds occured", e.getMessage());
+		}
+	}
+
 }
