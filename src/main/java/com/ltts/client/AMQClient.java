@@ -97,7 +97,7 @@ public class AMQClient implements MessageBrokerClient {
 			logger.trace("Message published into topic: {}", topic);
 		} catch (IllegalArgumentException e) {
 			MessageBrokerException messageBrokerException = new MessageBrokerException(
-					e, ConstantMessage.INAVALID_TOPIC_NAME);
+					e, ConstantMessage.INVALID_TOPIC_NAME);
 			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
 					messageBrokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);

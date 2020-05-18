@@ -8,7 +8,6 @@ package com.ltts.client;
 import java.util.HashMap;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.errors.InvalidTopicException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,19 +74,13 @@ public class KafkaClient implements MessageBrokerClient {
 	public <T> void produce(String topic, T kafkaMsg) {
 		try {
 			if ("".equals(topic)) {
-				throw new InvalidTopicException();
+				throw new IllegalArgumentException();
 			}
 			kafkaTemplate.send(topic, kafkaMsg);
 			logger.trace("Message published into topic: {}" + topic);
 		} catch (IllegalArgumentException e) {
 			MessageBrokerException brokerException = new MessageBrokerException(
-					e, ConstantMessage.INAVALID_TOPIC_NAME);
-			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
-					brokerException);
-			applicationEventPublisher.publishEvent(exceptionEvent);
-		} catch (InvalidTopicException e) {
-			MessageBrokerException brokerException = new MessageBrokerException(
-					e, ConstantMessage.INAVALID_TOPIC_NAME);
+					e, ConstantMessage.INVALID_TOPIC_NAME);
 			ServiceMessageEvent exceptionEvent = new ServiceMessageEvent(this,
 					brokerException);
 			applicationEventPublisher.publishEvent(exceptionEvent);

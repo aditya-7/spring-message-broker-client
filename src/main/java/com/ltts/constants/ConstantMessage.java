@@ -13,7 +13,7 @@ public class ConstantMessage {
 	private ConstantMessage() {
 	}
 
-	public static final String INAVALID_TOPIC_NAME = "Invalid topic name";
+	public static final String INVALID_TOPIC_NAME = "Invalid topic name";
 
 	public static final String INVALID_MESSAGE = "Invalid message";
 
