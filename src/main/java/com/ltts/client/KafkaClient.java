@@ -77,7 +77,7 @@ public class KafkaClient implements MessageBrokerClient {
 				throw new IllegalArgumentException();
 			}
 			kafkaTemplate.send(topic, kafkaMsg);
-			logger.trace("Message published into topic: {}" + topic);
+			logger.trace("Message published into topic: {}", topic);
 		} catch (IllegalArgumentException e) {
 			MessageBrokerException brokerException = new MessageBrokerException(
 					e, ConstantMessage.INVALID_TOPIC_NAME);
