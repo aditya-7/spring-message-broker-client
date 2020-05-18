@@ -4,6 +4,7 @@
 .factorypath
 .project
 .settings/
+*.iml
 
 # Compiled class file
 *.class

@@ -1,19 +1,35 @@
-package com.ltts.client;
+/*
+ /*
+ * Copyright (c) 2020,L&T Technology Services.
+ * All Rights Reserved.
+ */
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+package com.ltts.client;
 
 import java.util.HashMap;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ltts.constants.ConstantMessage;
+import com.ltts.exception.MessageBrokerException;
+
 public interface MessageBrokerClient {
 
-    static <T> T getDao(HashMap<String, Object> map, Class daoClass) {
-        final ObjectMapper mapper = new ObjectMapper();
-        T dao = (T) mapper.convertValue(map, daoClass);
-        return dao;
-    }
+	static <T> T getDao(HashMap<String, Object> map, Class daoClass) {
+		final ObjectMapper mapper = new ObjectMapper();
+		T dao = null;
+		try {
+			dao = (T) mapper.convertValue(map, daoClass);
 
-    void consume(Object message);
+		} catch (IllegalArgumentException e) {
+			MessageBrokerException brokerException = new MessageBrokerException(
+					e, ConstantMessage.UNRECOGNIZED_PROPERTIES_IN_OBJECT);
+			throw brokerException;
+		}
+		return dao;
+	}
 
-    <T> void produce(String topic, T message);
+	void consume(Object message);
+
+	<T> void produce(String topic, T message);
 
 }

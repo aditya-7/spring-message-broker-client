@@ -1,4 +1,4 @@
-# Message-Broker-Client 
+# Spring Message Broker Client Library
 A client that lets you choose between a set of Message brokers for inter-service communication.
 This can be plugged in as a dependency in a Spring boot project, and a developer can build applications agnostic of the broker running behind the scenes.
 It currently supports Active MQ and Apache Kafka in the backend.
@@ -11,6 +11,7 @@ Add the following code snippet to your application's pom.xml.
 		<groupId>com.ltts</groupId>
 		<artifactId>spring-msg-broker-client-lib</artifactId>
 		<version>1.0.0</version>
+
 </dependency>
 ```
 
