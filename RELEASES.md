@@ -8,3 +8,6 @@
 
 ## **1.0.2** - **Aditya Kishore** - **13/05/2020**
     * Configure Nexus deployment
+    
+## **1.0.3** - **Aditya Kishore** - **13/05/2020**
+    * Publish to LTTS Nexus repository

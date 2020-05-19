@@ -11,7 +11,7 @@
     </parent>
     <groupId>com.ltts</groupId>
     <artifactId>spring-msg-broker-client-lib</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <name>message-broker-client</name>
     <description>Generic message broker client</description>
 
@@ -52,8 +52,8 @@
 
     <distributionManagement>
         <repository>
-            <id>nexusopenshift</id>
-            <url>http://nexus-app-sb-2-sbx.sbx2apps.paasdev.delta.com/repository/maven-releases/</url>
+            <id>nexusltts</id>
+            <url>http://115.112.62.85:8083/repository/delta-libraries/</url>
         </repository>
     </distributionManagement>
 

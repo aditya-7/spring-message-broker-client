@@ -8,12 +8,13 @@ Add the following code snippet to your application's pom.xml.
 
 ```python
 <dependency>
-		<groupId>com.ltts</groupId>
-		<artifactId>spring-msg-broker-client-lib</artifactId>
-		<version>1.0.0</version>
-
+	<groupId>com.ltts</groupId>
+	<artifactId>spring-msg-broker-client-lib</artifactId>
+	<version>${VERSION}</version>
 </dependency>
 ```
+
+Configure the topics in Spring Boot as you would for Apache Kafka or Active MQ, and autowire the MessageBrokerClient interface. Implement the listener for the Spring Boot ServiceMessageEvent and handle all the messages received on the topic channel here. Use the produce method of the MessageBrokerClient implementation to send messages through a topic channel.
 
 ## Authors
 * **Aditya Kishore** - *aditya.kishore@ltts.com*
