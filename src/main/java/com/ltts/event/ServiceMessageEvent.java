@@ -9,6 +9,12 @@ import org.springframework.context.ApplicationEvent;
 
 import java.util.HashMap;
 
+/**
+ * Event publisher and also a class which will be used by all application
+ * liseteners
+ * 
+ * @see {@link com.ltts.utility.EventListenerTwin}
+ */
 public class ServiceMessageEvent extends ApplicationEvent {
 
 	private HashMap<String, Object> message;

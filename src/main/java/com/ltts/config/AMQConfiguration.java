@@ -39,6 +39,12 @@ public class AMQConfiguration {
 	@Value("${spring.activemq.password}")
 	String brokerPassword;
 
+	/**
+	 * A ConnectionFactory is an an Administered object, and is used for
+	 * creating Connections.
+	 * 
+	 * @return : ConnectionFactory object
+	 */
 	@Bean
 	public ActiveMQConnectionFactory connectionFactory() {
 		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
@@ -48,6 +54,11 @@ public class AMQConfiguration {
 		return connectionFactory;
 	}
 
+	/**
+	 * Coverts plain text to JSON format
+	 * 
+	 * @return : MessageConverter object
+	 */
 	@Bean
 	public MessageConverter jacksonJmsMessageConverter() {
 		MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
@@ -56,6 +67,12 @@ public class AMQConfiguration {
 		return converter;
 	}
 
+	/**
+	 * Builds the JMS listener container which will be used by
+	 * {@link org.springframework.jms.annotation.JmsListener}
+	 * 
+	 * @return : DefaultJmsListenerContainerFactory object
+	 */
 	@Bean
 	public DefaultJmsListenerContainerFactory jmsListenerContainerFactory() {
 		DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
@@ -69,6 +86,9 @@ public class AMQConfiguration {
 		return factory;
 	}
 
+	/**
+	 * @see {@link org.springframework.jms.core.JmsTemplate}
+	 */
 	@Bean
 	public JmsTemplate jmsTemplate() {
 		JmsTemplate template = new JmsTemplate();

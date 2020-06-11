@@ -37,6 +37,11 @@ public class KafkaConfiguration {
 	@Value("${spring.kafka.bootstrap-servers}")
 	String bootStrapServerAddress;
 
+	/**
+	 * Gives consumer instance.
+	 * 
+	 * @return : consumer instance with specified deserializers.
+	 */
 	@Bean
 	public ConsumerFactory<String, Object> consumerFactory() {
 		JsonDeserializer<Object> deserializer = new JsonDeserializer<>(
@@ -56,6 +61,12 @@ public class KafkaConfiguration {
 				new StringDeserializer(), deserializer);
 	}
 
+	/**
+	 * Builds the kafka listener container which will be used by
+	 * {@link org.springframework.kafka.annotation.KafkaListener}
+	 * 
+	 * @return
+	 */
 	@Bean
 	public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
 		ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
@@ -63,6 +74,11 @@ public class KafkaConfiguration {
 		return factory;
 	}
 
+	/**
+	 * Gives producer instance.
+	 * 
+	 * @return : producer instance with specified deserializers.
+	 */
 	@Bean
 	public ProducerFactory<String, Object> producerFactory() {
 		Map<String, Object> configProps = new HashMap<>();
@@ -75,6 +91,9 @@ public class KafkaConfiguration {
 		return new DefaultKafkaProducerFactory<String, Object>(configProps);
 	}
 
+	/**
+	 * @see {@link org.springframework.kafka.core.KafkaTemplate<String, Object>}
+	 */
 	@Bean
 	public KafkaTemplate<String, Object> kafkaTemplate() {
 		return new KafkaTemplate<String, Object>(producerFactory());
