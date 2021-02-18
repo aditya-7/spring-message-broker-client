@@ -1,5 +1,14 @@
+# IDE-specific files
+.idea/
+.classpath
+.factorypath
+.project
+.settings/
+*.iml
+
 # Compiled class file
 *.class
+target/
 
 # Log file
 *.log
